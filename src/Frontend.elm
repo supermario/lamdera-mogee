@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Frontend exposing (..)
 
 import Browser
 import Browser.Dom exposing (getViewport)
@@ -13,13 +13,22 @@ import Browser.Events
 import Components.Gamepad as Gamepad
 import Html.Events exposing (keyCode)
 import Json.Decode as Decode exposing (Value)
+import Json.Encode as Encode
+import Lamdera
 import Messages exposing (Msg(..))
 import Model exposing (Model)
 import Ports exposing (gamepad)
 import Task exposing (Task)
+import Types exposing (..)
+import Url
 import View
 import View.Font as Font
 import View.Sprite as Sprite
+
+
+updateFromBackend : ToFrontend -> Model -> ( Model, Cmd FrontendMsg )
+updateFromBackend msg model =
+    ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -46,11 +55,17 @@ init _ =
     )
 
 
-main : Program Value Model Msg
-main =
-    Browser.element
-        { init = init
-        , view = View.view
-        , subscriptions = subscriptions
+app =
+    Lamdera.frontend
+        { init = \url key -> init Encode.null
+        , onUrlRequest = \_ -> Noop
+        , onUrlChange = \_ -> Noop
         , update = Model.update
+        , updateFromBackend = updateFromBackend
+        , subscriptions = subscriptions
+        , view =
+            \model ->
+                { title = "Mogee Live"
+                , body = [ View.view model ]
+                }
         }

@@ -14,3 +14,4 @@ type Msg
     | TextureLoaded (Result Error Texture)
     | SpriteLoaded (Result Error Texture)
     | FontLoaded (Result Error Texture)
+    | Noop

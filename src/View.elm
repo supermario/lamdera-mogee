@@ -69,11 +69,11 @@ render : Model -> Texture -> Texture -> Texture -> List Entity
 render model texture font sprite =
     case model.state of
         Initial menu ->
-            if menu.section == Menu.SlidesSection then
-                Slides.render sprite font model.slides
-
-            else
-                Menu.render model.sound font sprite menu
+            -- if menu.section == Menu.SlidesSection then
+            --     Slides.render sprite font model.slides
+            --
+            -- else
+            Menu.render model.sound font sprite menu
 
         Paused menu ->
             Menu.render model.sound font sprite menu

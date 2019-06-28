@@ -38,7 +38,8 @@ type alias Model =
     , sprite : Maybe Texture
     , font : Maybe Texture
     , keys : Keys
-    , slides : Engine
+
+    -- , slides : Engine
     }
 
 
@@ -56,7 +57,8 @@ initial =
     , font = Nothing
     , sprite = Nothing
     , keys = Keys.initial
-    , slides = Slides.initial
+
+    -- , slides = Slides.initial
     }
 
 
@@ -125,6 +127,9 @@ update action model =
               }
             , Cmd.none
             )
+
+        Noop ->
+            ( model, Cmd.none )
 
 
 animate : Float -> Model -> ( Model, Cmd Msg )
@@ -237,11 +242,11 @@ updateMenu elapsed menuState menu model =
             Menu.update elapsed model.sound model.keys menu
 
         newModel =
-            if menu.section == Menu.SlidesSection then
-                { model | slides = Engine.update elapsed model.keys model.slides }
-
-            else
-                model
+            -- if menu.section == Menu.SlidesSection then
+            --     { model | slides = Engine.update elapsed model.keys model.slides }
+            --
+            -- else
+            model
     in
     case cmd of
         Menu.Start ->
