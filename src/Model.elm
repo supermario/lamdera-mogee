@@ -163,7 +163,12 @@ animate elapsed model =
         Dead ->
             if Keys.pressed codes.enter model.keys then
                 if model.lives == 0 then
-                    ( { model | state = Initial Menu.scoreEnterName }, Cmd.none )
+                    ( { model
+                        | state = Initial Menu.scoreEnterName
+                        , score = model.score + model.systems.currentScore
+                      }
+                    , Cmd.none
+                    )
 
                 else
                     continue model
