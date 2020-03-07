@@ -20,7 +20,8 @@ app =
 
 init : ( Model, Cmd BackendMsg )
 init =
-    ( { message = "Hello!" }
+    ( { highScores = []
+      }
     , Cmd.none
     )
 
@@ -35,5 +36,23 @@ update msg model =
 updateFromFrontend : SessionId -> ClientId -> ToBackend -> Model -> ( Model, Cmd BackendMsg )
 updateFromFrontend sessionId clientId msg model =
     case msg of
+        ScoresRequested ->
+            ( model
+            , Lamdera.sendToFrontend clientId
+                (TopScores (model.highScores |> List.take 6))
+            )
+
+        ScoreSaved score ->
+            let
+                newScores =
+                    model.highScores
+                        |> List.append [ { score | name = String.left 5 score.name } ]
+                        |> List.sortBy (\s -> s.score)
+                        |> List.reverse
+            in
+            ( { model | highScores = newScores }
+            , Lamdera.sendToFrontend clientId (TopScores (newScores |> List.take 6))
+            )
+
         NoOpToBackend ->
             ( model, Cmd.none )

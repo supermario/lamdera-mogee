@@ -28,7 +28,12 @@ import View.Sprite as Sprite
 
 updateFromBackend : ToFrontend -> Model -> ( Model, Cmd FrontendMsg )
 updateFromBackend msg model =
-    ( model, Cmd.none )
+    case msg of
+        TopScores highScores ->
+            ( { model | highScores = highScores }, Cmd.none )
+
+        NoOpToFrontend ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -43,7 +48,7 @@ subscriptions _ =
         ]
 
 
-init : Value -> ( Model, Cmd Msg )
+init : flags -> ( Model, Cmd Msg )
 init _ =
     ( Model.initial
     , Cmd.batch
@@ -57,7 +62,7 @@ init _ =
 
 app =
     Lamdera.frontend
-        { init = \url key -> init Encode.null
+        { init = \url key -> init Nothing
         , onUrlRequest = \_ -> Noop
         , onUrlChange = \_ -> Noop
         , update = Model.update

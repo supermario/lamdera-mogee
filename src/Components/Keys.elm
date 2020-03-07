@@ -2,10 +2,12 @@ module Components.Keys exposing
     ( Keys
     , animate
     , anykey
+    , ascii
     , codes
     , directions
     , down
     , gamepadChange
+    , getAscii
     , initial
     , keyChange
     , pressed
@@ -33,6 +35,7 @@ codes :
     , up : Int
     , q : Int
     , escape : Int
+    , backspace : Int
     }
 codes =
     { enter = 13
@@ -43,6 +46,7 @@ codes =
     , right = 39
     , up = 38
     , down = 40
+    , backspace = 8
     }
 
 
@@ -104,3 +108,22 @@ directions keys =
     { x = direction (down codes.left keys) (down codes.right keys)
     , y = direction (down codes.down keys) (down codes.up keys)
     }
+
+
+ascii keys =
+    keys
+        |> Dict.keys
+        |> List.any isAscii
+
+
+isAscii code =
+    code >= 33 && code <= 126
+
+
+getAscii : Keys -> String
+getAscii keys =
+    keys
+        |> Dict.filter (\code v -> v == 0 && isAscii code)
+        |> Dict.keys
+        |> List.map Char.fromCode
+        |> String.fromList

@@ -5,7 +5,9 @@ module Components.Menu exposing
     , MenuItem(..)
     , MenuSection(..)
     , PauseItem(..)
+    , highScores
     , paused
+    , scoreEnterName
     , start
     , update
     )
@@ -18,6 +20,10 @@ type Event
     | ToggleSound Bool
     | Start
     | Action
+    | LoadScores
+    | EnterNameBackspaced
+    | EnterNameKeyed Keys
+    | ScoreNameSubmitted
     | Resume
     | End
 
@@ -32,12 +38,15 @@ type MenuSection
     = HomeSection HomeItem
     | MenuSection MenuItem
     | PauseSection PauseItem
+    | HighScoresSection
+    | ScoreEnterNameSection
     | CreditsSection
     | SlidesSection
 
 
 type HomeItem
     = StartTheGame
+    | GoToHighScores
     | GoToMenu
 
 
@@ -66,6 +75,20 @@ paused =
     }
 
 
+highScores : Menu
+highScores =
+    { time = 0
+    , section = HighScoresSection
+    }
+
+
+scoreEnterName : Menu
+scoreEnterName =
+    { time = 0
+    , section = ScoreEnterNameSection
+    }
+
+
 goTo : MenuSection -> Menu -> Menu
 goTo section menu =
     { menu | time = 0, section = section }
@@ -89,6 +112,19 @@ update elapsed sound keys menu =
                 ( menu, Start )
 
             else if Keys.pressed codes.down keys then
+                ( choose (HomeSection GoToHighScores) menu, Noop )
+
+            else
+                ( tick elapsed menu, Noop )
+
+        HomeSection GoToHighScores ->
+            if Keys.pressed codes.enter keys then
+                ( goTo HighScoresSection menu, LoadScores )
+
+            else if Keys.pressed codes.up keys then
+                ( choose (HomeSection StartTheGame) menu, Noop )
+
+            else if Keys.pressed codes.down keys then
                 ( choose (HomeSection GoToMenu) menu, Noop )
 
             else
@@ -99,7 +135,7 @@ update elapsed sound keys menu =
                 ( goTo (MenuSection SoundOnOff) menu, Action )
 
             else if Keys.pressed codes.up keys then
-                ( choose (HomeSection StartTheGame) menu, Noop )
+                ( choose (HomeSection GoToHighScores) menu, Noop )
 
             else
                 ( tick elapsed menu, Noop )
@@ -142,6 +178,26 @@ update elapsed sound keys menu =
 
             else if Keys.pressed codes.escape keys || Keys.pressed codes.q keys then
                 ( goTo (HomeSection StartTheGame) menu, Action )
+
+            else
+                ( tick elapsed menu, Noop )
+
+        HighScoresSection ->
+            if Keys.pressed codes.escape keys || Keys.pressed codes.q keys || Keys.pressed codes.enter keys then
+                ( goTo (HomeSection StartTheGame) menu, Action )
+
+            else
+                ( tick elapsed menu, Noop )
+
+        ScoreEnterNameSection ->
+            if Keys.pressed codes.enter keys then
+                ( goTo HighScoresSection menu, ScoreNameSubmitted )
+
+            else if Keys.pressed codes.backspace keys then
+                ( tick elapsed menu, EnterNameBackspaced )
+
+            else if Keys.ascii keys then
+                ( menu, EnterNameKeyed keys )
 
             else
                 ( tick elapsed menu, Noop )

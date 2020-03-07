@@ -1,6 +1,5 @@
 module Model exposing
-    ( GameState(..)
-    , Model
+    ( Model
     , initial
     , update
     )
@@ -10,37 +9,19 @@ import Components.Components as Components exposing (Components)
 import Components.Gamepad as Gamepad
 import Components.Keys as Keys exposing (Keys, codes)
 import Components.Menu as Menu exposing (Menu)
+import Lamdera
+import List.Extra as List
 import Messages exposing (Msg(..))
 import Ports exposing (play, sound, stop)
 import Slides.Engine as Engine exposing (Engine)
 import Slides.Slides as Slides
 import Systems.Systems as Systems exposing (Systems)
+import Types exposing (..)
 import WebGL.Texture exposing (Error, Texture)
 
 
-type GameState
-    = Paused Menu
-    | Playing
-    | Dead
-    | Initial Menu
-
-
 type alias Model =
-    { systems : Systems
-    , components : Components
-    , state : GameState
-    , lives : Int
-    , score : Int
-    , size : ( Int, Int )
-    , padding : Int
-    , sound : Bool
-    , texture : Maybe Texture
-    , sprite : Maybe Texture
-    , font : Maybe Texture
-    , keys : Keys
-
-    -- , slides : Engine
-    }
+    FrontendModel
 
 
 initial : Model
@@ -49,6 +30,7 @@ initial =
     , systems = Systems.initial
     , lives = 0
     , score = 0
+    , highScores = []
     , state = Initial Menu.start
     , size = ( 0, 0 )
     , padding = 0
@@ -57,6 +39,7 @@ initial =
     , font = Nothing
     , sprite = Nothing
     , keys = Keys.initial
+    , playerName = ""
 
     -- , slides = Slides.initial
     }
@@ -180,7 +163,7 @@ animate elapsed model =
         Dead ->
             if Keys.pressed codes.enter model.keys then
                 if model.lives == 0 then
-                    ( { model | state = Initial Menu.start }, Cmd.none )
+                    ( { model | state = Initial Menu.scoreEnterName }, Cmd.none )
 
                 else
                     continue model
@@ -275,6 +258,37 @@ updateMenu elapsed menuState menu model =
             ( { newModel | state = menuState newMenu }
             , play "action"
             )
+
+        Menu.LoadScores ->
+            ( { newModel | state = menuState newMenu }
+            , Cmd.batch [ play "action", Lamdera.sendToBackend ScoresRequested ]
+            )
+
+        Menu.EnterNameBackspaced ->
+            let
+                newName =
+                    model.playerName |> String.dropRight 1
+            in
+            ( { newModel | playerName = newName }, Cmd.none )
+
+        Menu.EnterNameKeyed keys ->
+            let
+                input =
+                    Keys.getAscii keys
+
+                newName =
+                    model.playerName ++ input |> String.left 5
+            in
+            ( { newModel | playerName = newName }, Cmd.none )
+
+        Menu.ScoreNameSubmitted ->
+            if model.playerName /= "" then
+                ( { newModel | state = menuState newMenu }
+                , Lamdera.sendToBackend <| ScoreSaved { name = model.playerName, score = model.score }
+                )
+
+            else
+                ( model, Cmd.none )
 
         Menu.Noop ->
             ( { newModel | state = menuState newMenu }

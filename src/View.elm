@@ -7,8 +7,8 @@ import Components.Transform as Transform exposing (Transform)
 import Html exposing (Html, div)
 import Html.Attributes exposing (height, style, width)
 import Messages exposing (Msg)
-import Model exposing (GameState(..), Model)
 import Slides.View as Slides
+import Types exposing (FrontendModel, GameState(..))
 import View.Color as Color
 import View.Common as Common
 import View.Components
@@ -19,7 +19,7 @@ import WebGL exposing (Entity)
 import WebGL.Texture exposing (Texture)
 
 
-view : Model -> Html Msg
+view : FrontendModel -> Html Msg
 view model =
     let
         ( w, h ) =
@@ -65,7 +65,7 @@ toMinimap { x, y } =
     }
 
 
-render : Model -> Texture -> Texture -> Texture -> List Entity
+render : FrontendModel -> Texture -> Texture -> Texture -> List Entity
 render model texture font sprite =
     case model.state of
         Initial menu ->
@@ -73,10 +73,10 @@ render model texture font sprite =
             --     Slides.render sprite font model.slides
             --
             -- else
-            Menu.render model.sound font sprite menu
+            Menu.render model.sound font sprite menu model.highScores model.playerName
 
         Paused menu ->
-            Menu.render model.sound font sprite menu
+            Menu.render model.sound font sprite menu model.highScores model.playerName
                 ++ renderGame model texture font sprite
 
         Dead ->
@@ -87,7 +87,7 @@ render model texture font sprite =
             renderGame model texture font sprite
 
 
-renderGame : Model -> Texture -> Texture -> Texture -> List Entity
+renderGame : FrontendModel -> Texture -> Texture -> Texture -> List Entity
 renderGame { components, systems, score, keys, lives } texture font sprite =
     let
         mogeeTransform =
