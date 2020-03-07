@@ -1,3 +1,12 @@
+
+Play it here! https://mogee.lamdera.com
+
+This is a fork of [w0rm/elm-mogee](https://github.com/w0rm/elm-mogee) adjusted to run on [Lamdera](https://lamdera.com). It has added leaderboard functionality.
+
+Note: Audio does not work in this version yet!
+
+---
+
 ![Mogee](logo.png)
 
 A WebGL platformer that fits into 64x64px screen.
@@ -10,10 +19,7 @@ Submitted to the [\#LOWREZJAM 2016](https://unsoundscapes.itch.io/mogee).
 
 ## Instructions to run
 
-1. Install elm [elm-lang.org/install](http://elm-lang.org/install)
-2. Clone this repo
-3. Run `elm make src/Main.elm --output elm.js`
-4. Open `index.html` in the browser
+Coming soon!
 
 ## Special Credits
 
