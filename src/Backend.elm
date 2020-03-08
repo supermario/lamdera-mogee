@@ -40,7 +40,7 @@ updateFromFrontend sessionId clientId msg model =
         ScoresRequested ->
             ( model
             , Lamdera.sendToFrontend clientId
-                (TopScores (model.highScores |> List.take 6))
+                (TopScores (selectLeaderboardScores model.highScores))
             )
 
         ScoreSaved score ->
@@ -52,8 +52,12 @@ updateFromFrontend sessionId clientId msg model =
                         |> List.reverse
             in
             ( { model | highScores = newScores }
-            , Lamdera.sendToFrontend clientId (TopScores (newScores |> List.uniqueBy .name |> List.take 6))
+            , Lamdera.sendToFrontend clientId (TopScores (selectLeaderboardScores newScores))
             )
 
         NoOpToBackend ->
             ( model, Cmd.none )
+
+
+selectLeaderboardScores scores =
+    scores |> List.uniqueBy .name |> List.take 6
